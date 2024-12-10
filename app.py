@@ -13,10 +13,10 @@ st.set_page_config(
 #  description section
 st.title("Ionic Protocol Emissions Analysis")
 
-with st.expander("About this Analysis", expanded=True):
+with st.expander("Overview", expanded=True):
     st.markdown("""
-    This dashboard presents analysis of emissions impact on Ionic Protocol metrics. The data tracks changes 
-    in supply and borrowing across vaults on Mode, OP, and Base networks, along with emissions tracking and revenue analysis. Currently Base only.
+    This dashboard presents several analyses related to [Ionic Money](https://ionic.money/). The data tracks changes 
+    in supply and borrowing across vaults on Mode, OP, and Base networks, along with emissions tracking, revenue analysis, and regressions. Vault analysis is currently Base only.
     
     📊 **Data Source**: Data primarily sourced from Dune Analytics. Click the repo for links to queries.
     
