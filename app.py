@@ -398,15 +398,15 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                avg_borrow_apr = apr_summary['borrow_apr']['mean'].mean() * 100
+                avg_borrow_apr = apr_summary[('borrow_apr', 'mean')].mean() * 100
                 st.metric("Average Borrow APR", f"{avg_borrow_apr:.2f}%")
                 
             with col2:
-                avg_supply_apr = apr_summary['supply_apr']['mean'].mean() * 100
+                avg_supply_apr = apr_summary[('supply_apr', 'mean')].mean() * 100
                 st.metric("Average Supply APR", f"{avg_supply_apr:.2f}%")
                 
             with col3:
-                avg_util = apr_summary['utilization_rate']['mean'].mean() * 100
+                avg_util = apr_summary[('utilization_rate', 'mean')].mean() * 100
                 st.metric("Average Utilization Rate", f"{avg_util:.2f}%")
 
             # Borrow APR Chart
@@ -453,9 +453,10 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             
             # Format percentages in summary stats
             formatted_summary = apr_summary.copy()
-            for col in formatted_summary.columns:
-                if col[0] in ['borrow_apr', 'supply_apr', 'utilization_rate']:
-                    formatted_summary[col] = formatted_summary[col] * 100
+            # Convert to percentages
+            for metric in ['borrow_apr', 'supply_apr', 'utilization_rate']:
+                for stat in ['mean', 'min', 'max']:
+                    formatted_summary[(metric, stat)] = formatted_summary[(metric, stat)] * 100
             
             st.dataframe(formatted_summary, use_container_width=True)
 
