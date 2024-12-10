@@ -383,10 +383,6 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             - `TVL_start`: Impact of initial Total Value Locked
             - `chain_encoded`: Impact of different chains
             """)
-            
-        except Exception as e:
-            st.error(f"Error loading regression analysis data: {str(e)}")
-    
     # TAB 6
     with tab6:
         st.subheader("APR Analysis")
