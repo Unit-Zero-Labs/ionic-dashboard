@@ -35,25 +35,49 @@ DATA_DIR = SCRIPT_DIR / "data"
 @st.cache_data
 def load_data():
     try:
-        emissions_path = DATA_DIR / "ionic_emissions_results.csv"
-        vault_path = DATA_DIR / "ionic_vault_analysis.csv"
-        age_size_path = DATA_DIR / "ionic_vault_analysis_age_and_size.csv"
+        # List all required files
+        required_files = {
+            'emissions_results': DATA_DIR / "ionic_emissions_results.csv",
+            'vault_analysis': DATA_DIR / "ionic_vault_analysis.csv",
+            'age_size_analysis': DATA_DIR / "ionic_vault_analysis_age_and_size.csv",
+            'revenue_analysis': DATA_DIR / "ionic_revenue_analysis.csv",
+            'regression_results': DATA_DIR / "ionic_emissions_regression_results.csv"
+        }
         
-        if not all(p.exists() for p in [emissions_path, vault_path, age_size_path]):
-            raise FileNotFoundError(f"One or more CSV files not found in {DATA_DIR}")
+        # Check if data directory exists
+        if not DATA_DIR.exists():
+            raise FileNotFoundError(f"Data directory not found at {DATA_DIR}")
+        
+        # Check each required file
+        missing_files = []
+        for name, path in required_files.items():
+            if not path.exists():
+                missing_files.append(str(path))
+        
+        if missing_files:
+            raise FileNotFoundError(f"Missing required files:\n" + "\n".join(missing_files))
             
-        emissions_results = pd.read_csv(emissions_path)
-        vault_analysis = pd.read_csv(vault_path)
-        age_size_analysis = pd.read_csv(age_size_path)
-        return emissions_results, vault_analysis, age_size_analysis
+        # Load all the data
+        emissions_results = pd.read_csv(required_files['emissions_results'])
+        vault_analysis = pd.read_csv(required_files['vault_analysis'])
+        age_size_analysis = pd.read_csv(required_files['age_size_analysis'])
+        revenue_analysis = pd.read_csv(required_files['revenue_analysis'])
+        regression_results = pd.read_csv(required_files['regression_results'])
+        
+        return emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results
+        
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
-        return None, None, None
+        st.error(f"Current working directory: {os.getcwd()}")
+        st.error(f"Data directory path: {DATA_DIR}")
+        st.error(f"Files in data directory: {os.listdir(DATA_DIR) if DATA_DIR.exists() else 'Directory not found'}")
+        return None, None, None, None, None
 
-emissions_results, vault_analysis, age_size_analysis = load_data()
+# Update the unpacking of the returned values
+emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results = load_data()
 
-
-if emissions_results is not None and vault_analysis is not None:
+# Update the main condition to check for all dataframes
+if all(df is not None for df in [emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results]):
 
     tab1, tab2, tab3, tab4, tab5 = st.tabs(["Base Vaults", "Vault Analysis", "Revenue Analysis", "Raw Data", "Emissions Regressions"])
 
