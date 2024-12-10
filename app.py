@@ -93,8 +93,8 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             st.metric("Daily Emission Rate", f"{metrics['Daily Emission Rate']:,.2f}")
         
         with col2:
-            st.metric("Total Deposit Change", f"${metrics['Total Deposit Change ($), All Vaults']:,.2f}")
-            st.metric("Total Borrow Change", f"${metrics['Total Borrow Change ($), All Vaults']:,.2f}")
+            st.metric("Total Deposit Change", f"${metrics['Total Deposit Change ($)']:,.2f}")
+            st.metric("Total Borrow Change", f"${metrics['Total Borrow Change ($)']:,.2f}")
 
         # Create visualization of changes
         st.subheader("Vault Changes Analysis")
