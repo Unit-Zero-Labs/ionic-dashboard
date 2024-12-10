@@ -393,6 +393,9 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
         st.subheader("APR Analysis")
         
         try:
+            # Convert date column to datetime
+            apr_analysis['date'] = pd.to_datetime(apr_analysis['date'])
+            
             # Create three columns for key metrics
             col1, col2, col3 = st.columns(3)
             
@@ -415,10 +418,13 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
                 x='date',
                 y='borrow_apr',
                 color='vaultName',
-                title='Borrow APRs by Vault',
-                labels={'borrow_apr': 'Borrow APR', 'date': 'Date'}
+                title='Borrow APRs by Vault'
             )
-            fig1.update_layout(height=500)
+            fig1.update_layout(
+                height=500,
+                yaxis_title='Borrow APR',
+                xaxis_title='Date'
+            )
             st.plotly_chart(fig1, use_container_width=True)
 
             # Supply APR Chart
@@ -428,10 +434,13 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
                 x='date',
                 y='supply_apr',
                 color='vaultName',
-                title='Supply APRs by Vault',
-                labels={'supply_apr': 'Supply APR', 'date': 'Date'}
+                title='Supply APRs by Vault'
             )
-            fig2.update_layout(height=500)
+            fig2.update_layout(
+                height=500,
+                yaxis_title='Supply APR',
+                xaxis_title='Date'
+            )
             st.plotly_chart(fig2, use_container_width=True)
 
             # Utilization Rate Chart
@@ -441,26 +450,23 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
                 x='date',
                 y='utilization_rate',
                 color='vaultName',
-                title='Utilization Rates by Vault',
-                labels={'utilization_rate': 'Utilization Rate', 'date': 'Date'}
+                title='Utilization Rates by Vault'
             )
-            fig3.update_layout(height=500)
+            fig3.update_layout(
+                height=500,
+                yaxis_title='Utilization Rate',
+                xaxis_title='Date'
+            )
             st.plotly_chart(fig3, use_container_width=True)
 
             # Summary Statistics Table
             st.subheader("Summary Statistics by Vault")
-            
-            # Calculate summary statistics
-            summary_stats = apr_analysis.groupby('vaultName').agg({
-                'borrow_apr': ['mean', 'min', 'max', 'count'],
-                'supply_apr': ['mean', 'min', 'max'],
-                'utilization_rate': ['mean', 'min', 'max']
-            }).round(4)
-            
-            # Convert to percentages
-            for col in summary_stats.columns:
-                if col[0] in ['borrow_apr', 'supply_apr', 'utilization_rate']:
-                    summary_stats[col] *= 100
+            summary_stats = pd.DataFrame({
+                'Avg Borrow APR (%)': apr_analysis.groupby('vaultName')['borrow_apr'].mean() * 100,
+                'Avg Supply APR (%)': apr_analysis.groupby('vaultName')['supply_apr'].mean() * 100,
+                'Avg Utilization (%)': apr_analysis.groupby('vaultName')['utilization_rate'].mean() * 100,
+                'Total Records': apr_analysis.groupby('vaultName').size()
+            }).round(2)
             
             st.dataframe(summary_stats, use_container_width=True)
 
