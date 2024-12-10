@@ -42,8 +42,7 @@ def load_data():
             'age_size_analysis': DATA_DIR / "ionic_vault_analysis_age_and_size.csv",
             'revenue_analysis': DATA_DIR / "ionic_revenue_analysis.csv",
             'regression_results': DATA_DIR / "ionic_emissions_regression_results.csv",
-            'apr_analysis': DATA_DIR / "ionic_apr_analysis.csv",
-            'apr_summary': DATA_DIR / "ionic_apr_summary.csv"
+            'apr_analysis': DATA_DIR / "ionic_apr_analysis.csv"
 
         }
         
@@ -67,10 +66,10 @@ def load_data():
         revenue_analysis = pd.read_csv(required_files['revenue_analysis'])
         regression_results = pd.read_csv(required_files['regression_results'])
         apr_analysis = pd.read_csv(required_files['apr_analysis'])
-        apr_summary = pd.read_csv(required_files['apr_summary'])
+        
 
         
-        return emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis, apr_summary
+        return emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis
 
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
@@ -80,9 +79,9 @@ def load_data():
         return None, None, None, None, None
 
 #  unpacking of the returned values
-emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis, apr_summary = load_data()
+emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis = load_data()
 #  check for all dataframes
-if all(df is not None for df in [emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis, apr_summary]):
+if all(df is not None for df in [emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis]):
 
     tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Base Vaults", "Vault Analysis", "Revenue Analysis", "Raw Data", "Emissions Regressions", "APR Analysis"])
 
@@ -398,15 +397,15 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             col1, col2, col3 = st.columns(3)
             
             with col1:
-                avg_borrow_apr = apr_summary[('borrow_apr', 'mean')].mean() * 100
+                avg_borrow_apr = apr_analysis[('borrow_apr', 'mean')].mean() * 100
                 st.metric("Average Borrow APR", f"{avg_borrow_apr:.2f}%")
                 
             with col2:
-                avg_supply_apr = apr_summary[('supply_apr', 'mean')].mean() * 100
+                avg_supply_apr = apr_analysis[('supply_apr', 'mean')].mean() * 100
                 st.metric("Average Supply APR", f"{avg_supply_apr:.2f}%")
                 
             with col3:
-                avg_util = apr_summary[('utilization_rate', 'mean')].mean() * 100
+                avg_util = apr_analysis[('utilization_rate', 'mean')].mean() * 100
                 st.metric("Average Utilization Rate", f"{avg_util:.2f}%")
 
             # Borrow APR Chart
@@ -452,7 +451,7 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             st.subheader("Summary Statistics by Vault")
             
             # Format percentages in summary stats
-            formatted_summary = apr_summary.copy()
+            formatted_summary = apr_analysis.copy()
             # Convert to percentages
             for metric in ['borrow_apr', 'supply_apr', 'utilization_rate']:
                 for stat in ['mean', 'min', 'max']:
