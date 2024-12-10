@@ -88,13 +88,13 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
         col1, col2 = st.columns(2)
         
         with col1:
-            st.metric("Total ION Emissions", f"{metrics['Total ION Emissions']:,.2f}")
+            st.metric("Total ION Emissions (Base only)", f"{metrics['Total ION Emissions']:,.2f}")
             st.metric("Days Analyzed", f"{metrics['Days Analyzed']:.0f}")
             st.metric("Daily Emission Rate", f"{metrics['Daily Emission Rate']:,.2f}")
         
         with col2:
-            st.metric("Total Deposit Change", f"${metrics['Total Deposit Change ($)']:,.2f}")
-            st.metric("Total Borrow Change", f"${metrics['Total Borrow Change ($)']:,.2f}")
+            st.metric("Total Deposit Change", f"${metrics['Total Deposit Change ($), All Vaults']:,.2f}")
+            st.metric("Total Borrow Change", f"${metrics['Total Borrow Change ($), All Vaults']:,.2f}")
 
         # Create visualization of changes
         st.subheader("Vault Changes Analysis")
@@ -115,7 +115,7 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             y='Change',
             color='Metric',
             barmode='group',
-            title='Deposit and Borrow Changes by Vault',
+            title='Deposit and Borrow Changes by Vault (Since Emissions Start)',
             labels={'vaultName': 'Vault', 'Change': 'Change in USD'},
         )
         
