@@ -41,7 +41,9 @@ def load_data():
             'vault_analysis': DATA_DIR / "ionic_vault_analysis.csv",
             'age_size_analysis': DATA_DIR / "ionic_vault_analysis_age_and_size.csv",
             'revenue_analysis': DATA_DIR / "ionic_revenue_analysis.csv",
-            'regression_results': DATA_DIR / "ionic_emissions_regression_results.csv"
+            'regression_results': DATA_DIR / "ionic_emissions_regression_results.csv",
+            'apr_analysis': DATA_DIR / "ionic_apr_analysis.csv",
+
         }
         
         # Check if data directory exists
@@ -63,9 +65,11 @@ def load_data():
         age_size_analysis = pd.read_csv(required_files['age_size_analysis'])
         revenue_analysis = pd.read_csv(required_files['revenue_analysis'])
         regression_results = pd.read_csv(required_files['regression_results'])
+        apr_analysis = pd.read_csv(required_files['apr_analysis'])
+
         
-        return emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results
-        
+        return emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis
+
     except Exception as e:
         st.error(f"Error loading data: {str(e)}")
         st.error(f"Current working directory: {os.getcwd()}")
@@ -73,13 +77,12 @@ def load_data():
         st.error(f"Files in data directory: {os.listdir(DATA_DIR) if DATA_DIR.exists() else 'Directory not found'}")
         return None, None, None, None, None
 
-# Update the unpacking of the returned values
-emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results = load_data()
+#  unpacking of the returned values
+emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis = load_data()
+#  check for all dataframes
+if all(df is not None for df in [emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results, apr_analysis]):
 
-# Update the main condition to check for all dataframes
-if all(df is not None for df in [emissions_results, vault_analysis, age_size_analysis, revenue_analysis, regression_results]):
-
-    tab1, tab2, tab3, tab4, tab5 = st.tabs(["Base Vaults", "Vault Analysis", "Revenue Analysis", "Raw Data", "Emissions Regressions"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Base Vaults", "Vault Analysis", "Revenue Analysis", "Raw Data", "Emissions Regressions", "APR Analysis"])
 
     # TAB 1
     with tab1:
@@ -383,3 +386,80 @@ if all(df is not None for df in [emissions_results, vault_analysis, age_size_ana
             
         except Exception as e:
             st.error(f"Error loading regression analysis data: {str(e)}")
+    
+    # TAB 6
+    with tab6:
+        st.subheader("APR Analysis")
+        
+        try:
+            # Create three columns for key metrics
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                avg_borrow_apr = apr_results['borrow_apr'].mean() * 100
+                st.metric("Average Borrow APR", f"{avg_borrow_apr:.2f}%")
+                
+            with col2:
+                avg_supply_apr = apr_results['supply_apr'].mean() * 100
+                st.metric("Average Supply APR", f"{avg_supply_apr:.2f}%")
+                
+            with col3:
+                avg_util = apr_results['utilization_rate'].mean() * 100
+                st.metric("Average Utilization Rate", f"{avg_util:.2f}%")
+
+            # Borrow APR Chart
+            st.subheader("Borrow APRs Over Time")
+            fig1 = px.line(
+                apr_results,
+                x='date',
+                y='borrow_apr',
+                color='vaultName',
+                title='Borrow APRs by Vault',
+                labels={'borrow_apr': 'Borrow APR', 'date': 'Date'}
+            )
+            fig1.update_layout(height=500)
+            st.plotly_chart(fig1, use_container_width=True)
+
+            # Supply APR Chart
+            st.subheader("Supply APRs Over Time")
+            fig2 = px.line(
+                apr_results,
+                x='date',
+                y='supply_apr',
+                color='vaultName',
+                title='Supply APRs by Vault',
+                labels={'supply_apr': 'Supply APR', 'date': 'Date'}
+            )
+            fig2.update_layout(height=500)
+            st.plotly_chart(fig2, use_container_width=True)
+
+            # Utilization Rate Chart
+            st.subheader("Utilization Rates Over Time")
+            fig3 = px.line(
+                apr_results,
+                x='date',
+                y='utilization_rate',
+                color='vaultName',
+                title='Utilization Rates by Vault',
+                labels={'utilization_rate': 'Utilization Rate', 'date': 'Date'}
+            )
+            fig3.update_layout(height=500)
+            st.plotly_chart(fig3, use_container_width=True)
+
+            # Summary Statistics Table
+            st.subheader("Summary Statistics by Vault")
+            summary_stats = apr_results.groupby('vaultName').agg({
+                'borrow_apr': ['mean', 'min', 'max', 'count'],
+                'supply_apr': ['mean', 'min', 'max'],
+                'utilization_rate': ['mean', 'min', 'max']
+            }).round(4)
+            
+            # Format percentages
+            for col in summary_stats.columns:
+                if col[0] in ['borrow_apr', 'supply_apr', 'utilization_rate']:
+                    summary_stats[col] = summary_stats[col] * 100
+            
+            st.dataframe(summary_stats, use_container_width=True)
+
+        except Exception as e:
+            st.error(f"Error loading APR analysis data: {str(e)}")
